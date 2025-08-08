@@ -401,7 +401,7 @@ distances, indices = tree.query(ccs_coords_rad, k=1)
 def process_match(i):
     ccs_idx = ccs_coords.iloc[i].name
     gis_idx = indices[i][0]
-    distance_meters = distances[i][0] * 6371000  # Convert radians to meters
+    distance_meters = distances[i][0] * 6371000  # Converting radians to meters
 
     if distance_meters <= 50:
         return {
@@ -476,3 +476,4 @@ def plot_match(match, title):
 
 plot_match(closest_match, "Closest")
 plot_match(furthest_match, "Furthest")
+
