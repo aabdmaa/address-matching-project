@@ -51,10 +51,8 @@ apt_df_gis['SERVICEADDRESS'] = apt_df_gis['SERVICEADDRESS']\
     .str.strip()
 
 # Manually joining known compound names before parsing
-apt_df_gis['SERVICEADDRESS'] = apt_df_gis['SERVICEADDRESS'].str.replace(
-    r'\bmc fall\b', 'mcfall', regex=True)
-apt_df_gis['SERVICEADDRESS'] = apt_df_gis['SERVICEADDRESS'].str.replace(
-    r'\bmc kinney\b', 'mckinney', regex=True)
+apt_df_gis['SERVICEADDRESS'] = apt_df_gis['SERVICEADDRESS'].str.replace(r'\bmc fall\b', 'mcfall', regex=True)
+apt_df_gis['SERVICEADDRESS'] = apt_df_gis['SERVICEADDRESS'].str.replace(r'\bmc kinney\b', 'mckinney', regex=True)
 
 
 # Normalizing CCS apartment info using New Occupancy Identifier
@@ -87,8 +85,7 @@ def parse_service_address(address):
 
 # Applying parsing only to non-empty SERVICEADDRESS rows
 apt_df_gis[['Parsed Street Number', 'Parsed Street Prefix', 'Parsed Street Name', 'Parsed Street Suffix']] = apt_df_gis['SERVICEADDRESS'].apply(
-    lambda x: parse_service_address(x) if isinstance(
-        x, str) and x.strip() else pd.Series(['', '', '', ''])
+    lambda x: parse_service_address(x) if isinstance(x, str) and x.strip() else pd.Series(['', '', '', ''])
 )
 
 # Filling empty Parsed Street Number with STREETNUM, if available
@@ -123,8 +120,7 @@ def extract_apartments(text):
     text = text.lower()
 
     # Removing irrelevant phrases
-    text = re.sub(
-        r'(house meter|washer meters|w/ hm|office|club house|community center|street lighting)', '', text)
+    text = re.sub(r'(house meter|washer meters|w/ hm|office|club house|community center|street lighting)', '', text)
 
     # Cleaning up extra whitespace and punctuation
     text = re.sub(r'[^\w\s\-&,]', '', text)
@@ -132,17 +128,14 @@ def extract_apartments(text):
 
     # Extracting numeric ranges (101-104)
     range_matches = re.findall(r'\b(\d{1,4})\s*[-–]\s*(\d{1,4})\b', text)
-    ranges = [(int(start), int(end))
-              for start, end in range_matches if start.isdigit() and end.isdigit()]
+    ranges = [(int(start), int(end)) for start, end in range_matches if start.isdigit() and end.isdigit()]
 
     # Extracting individual numeric units (101, 2101)
-    unit_matches = re.findall(
-        r'\b(?:apt[s]?\.?|unit[s]?\.?|space[s]?\.?)?\s*(\d{1,4})\b', text)
+    unit_matches = re.findall(r'\b(?:apt[s]?\.?|unit[s]?\.?|space[s]?\.?)?\s*(\d{1,4})\b', text)
     units = list(set(unit_matches))
 
     # Extracting letter-based units (A, B, C)
-    letter_units = re.findall(
-        r'\b(?:apt[s]?\.?|unit[s]?\.?)?\s*([a-z])\b', text)
+    letter_units = re.findall(r'\b(?:apt[s]?\.?|unit[s]?\.?)?\s*([a-z])\b', text)
     units.extend(letter_units)
 
     return {
@@ -152,8 +145,7 @@ def extract_apartments(text):
 
 
 # Applying to GIS dataset
-apt_df_gis['Structured Apts'] = apt_df_gis['SLADDITIONALINFO'].apply(
-    extract_apartments)
+apt_df_gis['Structured Apts'] = apt_df_gis['SLADDITIONALINFO'].apply(extract_apartments)
 
 
 # Function for comparing street numbers
@@ -293,12 +285,9 @@ def compute_match(ccs_idx, ccs_row):
         )
 
         # Building full GIS name with apartment info
-        gis_prefix = str(
-            apt_df_gis.loc[gis_idx, 'Parsed Street Prefix']).strip().lower()
-        gis_name = str(
-            apt_df_gis.loc[gis_idx, 'Parsed Street Name']).strip().lower()
-        gis_suffix = str(
-            apt_df_gis.loc[gis_idx, 'Parsed Street Suffix']).strip().lower()
+        gis_prefix = str(apt_df_gis.loc[gis_idx, 'Parsed Street Prefix']).strip().lower()
+        gis_name = str(apt_df_gis.loc[gis_idx, 'Parsed Street Name']).strip().lower()
+        gis_suffix = str(apt_df_gis.loc[gis_idx, 'Parsed Street Suffix']).strip().lower()
         gis_apt = f"apt {ccs_apt}" if ccs_apt else ""
         gis_full_name = f"{gis_prefix} {gis_name} {gis_suffix} {gis_apt}".strip()
 
@@ -336,8 +325,7 @@ def compute_match(ccs_idx, ccs_row):
 
 
 # Creating delayed tasks with tqdm progress bar
-tasks = [compute_match(idx, row) for idx, row in tqdm(
-    apt_df_ccs.iterrows(), total=len(apt_df_ccs), desc="Creating tasks")]
+tasks = [compute_match(idx, row) for idx, row in tqdm(apt_df_ccs.iterrows(), total=len(apt_df_ccs), desc="Creating tasks")]
 
 # Computing with Dask's progress bar
 with ProgressBar():
@@ -356,16 +344,15 @@ print(f"Saved {len(string_semantic_matches_df)} matched address pairs to 'full_s
 apt_df_gis['X'] = pd.to_numeric(apt_df_gis['X'], errors='coerce')
 apt_df_gis['Y'] = pd.to_numeric(apt_df_gis['Y'], errors='coerce')
 apt_df_ccs['PREMISE_LONG'] = pd.to_numeric(
-    apt_df_ccs['PREMISE_LONG'], errors='coerce')
+apt_df_ccs['PREMISE_LONG'], errors='coerce')
 apt_df_ccs['PREMISE_LAT'] = pd.to_numeric(
-    apt_df_ccs['PREMISE_LAT'], errors='coerce')
+apt_df_ccs['PREMISE_LAT'], errors='coerce')
 
 matches_df = pd.read_pickle("full_string_semantic_matches.pkl")
 
 # Filtering unmatched CCS records
 matched_ccs_indices = set(matches_df['ccs_index'])
-unmatched_ccs_df = apt_df_ccs[~apt_df_ccs.index.isin(
-    matched_ccs_indices)].copy()
+unmatched_ccs_df = apt_df_ccs[~apt_df_ccs.index.isin(matched_ccs_indices)].copy()
 
 # Removing CCS records with 0.0 coordinates
 unmatched_ccs_df = unmatched_ccs_df[
@@ -426,8 +413,7 @@ with ProgressBar():
 flat_results = [r for r in results if r is not None]
 geospatial_matches_df = pd.DataFrame(flat_results)
 geospatial_matches_df.to_pickle("geospatial_matches.pkl")
-print(
-    f"\nSaved {len(geospatial_matches_df)} geospatial matches to 'geospatial_matches.pkl'")
+print(f"\nSaved {len(geospatial_matches_df)} geospatial matches to 'geospatial_matches.pkl'")
 
 
 # Graph to show the level of frequency and distribution of distances between matched geospatial points
@@ -445,28 +431,19 @@ plt.show()
 # Graphs to show the closest/furthest geospatial matches
 geospatial_matches_df = pd.read_pickle("geospatial_matches.pkl")
 
-closest_match = geospatial_matches_df.loc[geospatial_matches_df['distance_meters'].idxmin(
-)]
-furthest_match = geospatial_matches_df.loc[geospatial_matches_df['distance_meters'].idxmax(
-)]
-
+closest_match = geospatial_matches_df.loc[geospatial_matches_df['distance_meters'].idxmin()]
+furthest_match = geospatial_matches_df.loc[geospatial_matches_df['distance_meters'].idxmax()]
 
 def plot_match(match, title):
     plt.figure(figsize=(8, 6))
-    plt.scatter(match['ccs_lon'], match['ccs_lat'],
-                color='blue', label='CCS Location')
-    plt.scatter(match['gis_lon'], match['gis_lat'],
-                color='red', label='GIS Location')
-    plt.plot([match['ccs_lon'], match['gis_lon']], [
-             match['ccs_lat'], match['gis_lat']], color='gray', linestyle='--')
+    plt.scatter(match['ccs_lon'], match['ccs_lat'], color='blue', label='CCS Location')
+    plt.scatter(match['gis_lon'], match['gis_lat'], color='red', label='GIS Location')
+    plt.plot([match['ccs_lon'], match['gis_lon']], [match['ccs_lat'], match['gis_lat']], color='gray', linestyle='--')
 
-    plt.text(match['ccs_lon'], match['ccs_lat'],
-             f"CCS\n({match['ccs_lat']:.5f}, {match['ccs_lon']:.5f})", fontsize=9, ha='right')
-    plt.text(match['gis_lon'], match['gis_lat'],
-             f"GIS\n({match['gis_lat']:.5f}, {match['gis_lon']:.5f})", fontsize=9, ha='left')
+    plt.text(match['ccs_lon'], match['ccs_lat'], f"CCS\n({match['ccs_lat']:.5f}, {match['ccs_lon']:.5f})", fontsize=9, ha='right')
+    plt.text(match['gis_lon'], match['gis_lat'], f"GIS\n({match['gis_lat']:.5f}, {match['gis_lon']:.5f})", fontsize=9, ha='left')
 
-    plt.title(
-        f"{title} Match\nDistance: {match['distance_meters']:.2f} meters")
+    plt.title(f"{title} Match\nDistance: {match['distance_meters']:.2f} meters")
     plt.xlabel("Longitude")
     plt.ylabel("Latitude")
     plt.legend()
@@ -476,4 +453,3 @@ def plot_match(match, title):
 
 plot_match(closest_match, "Closest")
 plot_match(furthest_match, "Furthest")
-
