@@ -6,7 +6,7 @@ The system combines fuzzy string matching, semantic similarity with Sentence-BER
 
 ---
 
-🔹 Features:
+Features:
 - Data cleaning and normalization with Pandas + regex
 - Address parsing with usaddress
 - String similarity (Levenshtein, Jaccard, token-based)
@@ -16,14 +16,14 @@ The system combines fuzzy string matching, semantic similarity with Sentence-BER
 
 ---
 
-🔹 Results:
+Results:
 - Successfully matched 74K+ address records across CCS and GIS datasets.  
 - Improved scalability with parallelization in Dask, reducing runtime for large-scale comparisons.  
 - Enhanced reliability by reconciling complex apartment information.
 
 ---
 
-🔹 Tech Stack:
+Tech Stack:
 - Python 3.x
 - Pandas, NumPy, Regex  
 - RapidFuzz, usaddress  
