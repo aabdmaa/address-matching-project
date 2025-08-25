@@ -23,7 +23,7 @@ The system combines fuzzy string matching, semantic similarity with Sentence-BER
 
 ---
 
-🔹 Tech Stack
+🔹 Tech Stack:
 - Python 3.x
 - Pandas, NumPy, Regex  
 - RapidFuzz, usaddress  
