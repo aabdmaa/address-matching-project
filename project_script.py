@@ -85,15 +85,12 @@ def parse_service_address(address):
 
 # Applying parsing only to non-empty SERVICEADDRESS rows
 apt_df_gis[['Parsed Street Number', 'Parsed Street Prefix', 'Parsed Street Name', 'Parsed Street Suffix']] = apt_df_gis['SERVICEADDRESS'].apply(
-    lambda x: parse_service_address(x) if isinstance(x, str) and x.strip() else pd.Series(['', '', '', ''])
-)
+    lambda x: parse_service_address(x) if isinstance(x, str) and x.strip() else pd.Series(['', '', '', '']))
 
 # Filling empty Parsed Street Number with STREETNUM, if available
 apt_df_gis['Parsed Street Number'] = apt_df_gis.apply(
     lambda row: row['STREETNUM'] if row['Parsed Street Number'].strip(
-    ) == '' and pd.notna(row['STREETNUM']) else row['Parsed Street Number'],
-    axis=1
-)
+    ) == '' and pd.notna(row['STREETNUM']) else row['Parsed Street Number'], axis=1)
 
 # Coverting to lowercase, removing punctuation, and stripping white space for prefixes, street names, and suffixes in GIS
 apt_df_gis['Parsed Street Prefix'] = apt_df_gis['Parsed Street Prefix']\
@@ -296,16 +293,13 @@ def compute_match(ccs_idx, ccs_row):
 
         if jaccard_sim >= 0.6:
             if ccs_idx not in ccs_embeddings:
-                ccs_embeddings[ccs_idx] = model.encode(
-                    ccs_full_name, convert_to_tensor=True).cpu().numpy()
+                ccs_embeddings[ccs_idx] = model.encode(ccs_full_name, convert_to_tensor=True).cpu().numpy()
             if gis_idx not in gis_embeddings:
-                gis_embeddings[gis_idx] = model.encode(
-                    gis_full_name, convert_to_tensor=True).cpu().numpy()
+                gis_embeddings[gis_idx] = model.encode(gis_full_name, convert_to_tensor=True).cpu().numpy()
 
             semantic_sim = util.cos_sim(
                 torch.from_numpy(ccs_embeddings[ccs_idx]),
-                torch.from_numpy(gis_embeddings[gis_idx])
-            ).item()
+                torch.from_numpy(gis_embeddings[gis_idx])).item()
 
             if semantic_sim >= 0.6:
                 results.append({
@@ -352,15 +346,13 @@ unmatched_ccs_df = apt_df_ccs[~apt_df_ccs.index.isin(matched_ccs_indices)].copy(
 # Removing CCS records with 0.0 coordinates
 unmatched_ccs_df = unmatched_ccs_df[
     (unmatched_ccs_df['PREMISE_LAT'] != 0) &
-    (unmatched_ccs_df['PREMISE_LONG'] != 0)
-].copy()
+    (unmatched_ccs_df['PREMISE_LONG'] != 0)].copy()
 
 # Converting GIS X/Y to lat/lon
 transformer = Transformer.from_crs("EPSG:2903", "EPSG:4326", always_xy=True)
 apt_df_gis[['GIS_LON', 'GIS_LAT']] = apt_df_gis.apply(
     lambda row: pd.Series(transformer.transform(row['X'], row['Y'])) if pd.notnull(
-        row['X']) and pd.notnull(row['Y']) else pd.Series([None, None]),
-    axis=1)
+        row['X']) and pd.notnull(row['Y']) else pd.Series([None, None]), axis=1)
 
 # Preparing GIS coordinates in radians
 gis_coords = apt_df_gis[['GIS_LAT', 'GIS_LON']].dropna().copy()
