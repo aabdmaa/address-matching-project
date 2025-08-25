@@ -188,13 +188,11 @@ def token_set_similarity(str1, str2):
 # Creating blocking keys for both datasets
 apt_df_ccs['blocking_key'] = (
     apt_df_ccs['New Street Number'].astype(str).str.strip() + ' ' +
-    apt_df_ccs['New Street Name'].astype(str).str.strip()
-).str.lower().str.replace(r'[^\w\s]', '', regex=True).str.strip()
+    apt_df_ccs['New Street Name'].astype(str).str.strip()).str.lower().str.replace(r'[^\w\s]', '', regex=True).str.strip()
 
 apt_df_gis['blocking_key'] = (
     apt_df_gis['Parsed Street Number'].astype(str).str.strip() + ' ' +
-    apt_df_gis['Parsed Street Name'].astype(str).str.strip()
-).str.lower().str.replace(r'[^\w\s]', '', regex=True).str.strip()
+    apt_df_gis['Parsed Street Name'].astype(str).str.strip()).str.lower().str.replace(r'[^\w\s]', '', regex=True).str.strip()
 
 
 # Creating a MinHash signature from input text using k-shingles
@@ -281,8 +279,7 @@ def compute_match(ccs_idx, ccs_row):
         ccs_prefix = str(ccs_row['New Prefix']).strip().lower()
         ccs_name = str(ccs_row['New Street Name']).strip().lower()
         ccs_suffix = str(ccs_row['New Suffix']).strip().lower()
-        ccs_full_name = f"{ccs_prefix} {ccs_name} {ccs_suffix} apt {ccs_apt}".strip(
-        )
+        ccs_full_name = f"{ccs_prefix} {ccs_name} {ccs_suffix} apt {ccs_apt}".strip()
 
         # Building full GIS name with apartment info
         gis_prefix = str(apt_df_gis.loc[gis_idx, 'Parsed Street Prefix']).strip().lower()
@@ -343,10 +340,8 @@ print(f"Saved {len(string_semantic_matches_df)} matched address pairs to 'full_s
 # Ensuring coordinate fields are numeric
 apt_df_gis['X'] = pd.to_numeric(apt_df_gis['X'], errors='coerce')
 apt_df_gis['Y'] = pd.to_numeric(apt_df_gis['Y'], errors='coerce')
-apt_df_ccs['PREMISE_LONG'] = pd.to_numeric(
-apt_df_ccs['PREMISE_LONG'], errors='coerce')
-apt_df_ccs['PREMISE_LAT'] = pd.to_numeric(
-apt_df_ccs['PREMISE_LAT'], errors='coerce')
+apt_df_ccs['PREMISE_LONG'] = pd.to_numeric(apt_df_ccs['PREMISE_LONG'], errors='coerce')
+apt_df_ccs['PREMISE_LAT'] = pd.to_numeric(apt_df_ccs['PREMISE_LAT'], errors='coerce')
 
 matches_df = pd.read_pickle("full_string_semantic_matches.pkl")
 
@@ -365,8 +360,7 @@ transformer = Transformer.from_crs("EPSG:2903", "EPSG:4326", always_xy=True)
 apt_df_gis[['GIS_LON', 'GIS_LAT']] = apt_df_gis.apply(
     lambda row: pd.Series(transformer.transform(row['X'], row['Y'])) if pd.notnull(
         row['X']) and pd.notnull(row['Y']) else pd.Series([None, None]),
-    axis=1
-)
+    axis=1)
 
 # Preparing GIS coordinates in radians
 gis_coords = apt_df_gis[['GIS_LAT', 'GIS_LON']].dropna().copy()
