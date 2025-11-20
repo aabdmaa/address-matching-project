@@ -19,7 +19,7 @@ Features:
 Results:
 - Successfully matched 74K+ address records across CCS and GIS datasets.  
 - Improved scalability with parallelization in Dask, reducing runtime by 80% for large-scale comparisons.  
-- Enhanced reliability by reconciling complex apartment information.
+- Enhanced data reliability by reconciling complex apartment information.
 
 ---
 
